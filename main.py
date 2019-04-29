@@ -1,7 +1,6 @@
 import string
 
-guesses_available = 4
-# add one more guess to account for missed letter guesses
+from random_word import RandomWords
 
 # holds winning state of game
 win = False
