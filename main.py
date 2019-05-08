@@ -4,23 +4,24 @@ from random_word import RandomWords
 
 
 def initialize_game_variables():
-    global guesses_available
-    global win
     global letter_bank
     global guess_bank
-    global word
 
-    # add one more guess to account for missed letter guesses (guesses == 4)
-    guesses_available = 5
-    # holds winning state of game
-    win = False
     letter_bank = list(string.ascii_lowercase)
     guess_bank = []
+ 
+
+def get_random_word():
+    global word
     word = RandomWords().get_random_word()
 
 
 def get_input():
-    return input().lower()
+    guess = input().lower()
+    while len(guess) != 1 or guess.isalpha() == False:
+        print('Enter a valid character')
+        guess = input().lower()
+    return guess
 
 
 def get_visual_spacing_for_word_to_guesses_as_string():
@@ -53,7 +54,7 @@ def check_guessed_letter(user_input):
         return False
 
 
-def get_round_header():
+def get_round_header(guesses_available):
     print('Letter Bank: {}'.format(', '.join(letter_bank)))
     print("Guessed Letters: {}".format(tuple(guess_bank)))
     print('You have {} guesses available'.format(guesses_available - 1))
@@ -63,23 +64,42 @@ def get_round_header():
 
 
 def play_another_game_input():
-    input = input('Play again?')
-    if input is 'y':
+    play_again = input('Play again?')
+    if play_again is 'y':
         start_game()
     else:
         print('Bye!')
         exit()
 
-
+win = False
 def start_game():
+    guesses = 5
     initialize_game_variables()
-
+    get_random_word()
+    win = False
     print("Let's play some hangman!")
-    print("You have {} total guesses".format(guesses_available))
-    print("_~_~_~_~_~_~_~_~_~_~_~_~_")
-
-    while guesses_available > 1 or win == False:
-        play_game()
+    print("You have {} total guesses".format(guesses))
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    print('guesses_available')
+    while guesses > 1 and win == False:
+        get_round_header(guesses)
+        #get input
+        user_input = get_input()
+        # get the game details of the guessed letter
+        guess_round = check_guessed_letter(user_input)
+        if guess_round is None:
+            print('Letter "{}" already guessed'.format(user_input))
+        elif guess_round == False:
+            guesses -= 1
+            letter_bank.remove(user_input)
+            print('"{}" is not in the word!'.format(user_input))
+            print()
+        elif guess_round == True:   
+            letter_bank.remove(user_input)
+            letter_status = get_visual_spacing_for_word_to_guesses_as_string()
+            print('Great! You guessed a correct letter')
+            if '_' not in list(letter_status):
+                win = True
 
     if win:
         print('You WON!')
@@ -89,27 +109,7 @@ def start_game():
         print("You lose :'(")
         print('The word was {}'.format(word))
         play_another_game_input()
-
-
-def play_game():
-    get_round_header()
-    #get input
-    user_input = get_input()
-    # get the game details of the guessed letter
-    guess_round = check_guessed_letter(user_input)
-    if guess_round is None:
-        print('Letter "{}" already guessed'.format(user_input))
-    elif guess_round == False:
-        guesses_available -= 1
-        letter_bank.remove(user_input)
-        print('"{}" is not in the word!'.format(user_input))
-        print()
-    elif guess_round == True:
-        letter_bank.remove(user_input)
-        letter_status = get_visual_spacing_for_word_to_guesses_as_string()
-        print('Great! You guessed a correct letter')
-        if '_' not in list(letter_status):
-            win = True
+    
 
 # needs to call main game function
 if __name__ == "__main__":
