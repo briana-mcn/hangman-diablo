@@ -12,6 +12,7 @@ random-word = "*"
 
 [dev-packages]
 
+ipdb = "*"
 
 
 [requires]
